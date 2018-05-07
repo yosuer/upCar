@@ -48,8 +48,8 @@ export default class LoginScreen extends React.Component {
           title="No tengo cuenta"
           onPress={() => {this.props.navigation.navigate('Register')}}/>
         <Button
-          title="Mapa"
-          onPress={() => {this.props.navigation.navigate('Ver Mapa')}} />
+          title="Ver Mapa"
+          onPress={() => {this.props.navigation.navigate('Map')}} />
       </ScrollView>
     )
   }
