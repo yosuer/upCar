@@ -3,6 +3,7 @@ import {StyleSheet, Text, View, Dimensions} from 'react-native';
 import {Constants, Location, MapView, Permissions} from 'expo';
 import { Ionicons } from '@expo/vector-icons';
 const { width, height } = Dimensions.get('window');
+import MapViewDirections from 'react-native-maps-directions';
 
 const ASPECT_RATIO = width / height;
 const LATITUDE = -34.594364
@@ -19,12 +20,12 @@ export default class MapScreen extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-      region: new MapView.AnimatedRegion({
+      region: {
         latitude: LATITUDE,
         longitude: LONGITUDE,
         latitudeDelta: LATITUDE_DELTA,
         longitudeDelta: LONGITUDE_DELTA,
-      }),
+      },
       location: null
     }
   }
@@ -45,19 +46,33 @@ export default class MapScreen extends React.Component {
   };
 
   render() {
+    const {location} = this.state
     const { navigation } = this.props
     const destinationName = navigation.getParam('locationName', 'Indique su destino')
     const destCoords = navigation.getParam('locationCoords', null)
     return (
       <View style={styles.container}>
-        <MapView.Animated
+        <MapView
+          ref="mapView"
           style={styles.map}
           region={this.state.region}
           showsUserLocation={true}
-          onRegionChange={this._handleMapRegionChange}>
-          {destCoords ? <MapView.Marker coordinate={{latitude: destCoords.lat, longitude: destCoords.lng}}
-                                        title="Destino" /> : null}
-        </MapView.Animated>
+          loadingEnabled={true}>
+          {destCoords ? <MapView.Marker coordinate={{latitude: destCoords.lat, longitude: destCoords.lng}} title="Destino" /> : null}
+          {location && destCoords ?
+            <MapViewDirections origin={{latitude: location.coords.latitude, longitude: location.coords.longitude}}
+                               strokeWidth={5} strokeColor="hotpink"
+                               onReady={(result) => this.refs.mapView.fitToCoordinates(result.coordinates, {
+                                 edgePadding: {
+                                   right: (width / 20),
+                                   bottom: (height / 20),
+                                   left: (width / 20),
+                                   top: (height / 20),
+                                 }, animated: true
+                               })}
+                               destination={{latitude: destCoords.lat, longitude: destCoords.lng}}
+                               apikey="AIzaSyBGbI6JP1RoUwaebCw3IyETYhzNnsuvEps"/> : null}
+        </MapView>
         <View style={styles.searchBox}>
           <View style={styles.inputWrapper}>
             <Text style={styles.inputText} onPress={()=> this.props.navigation.navigate('SelectDestination')}>
