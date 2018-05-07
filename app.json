@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "sdkVersion": "27.0.0",
+    "name": "remis-app",
+    "version": "1.0.0",
+    "ios": {
+      "bundleIdentifier": "com.yosuer.remis"
+    },
+    "android": {
+      "package": "com.yosuer.remis",
+      "config": {
+        "googleMaps" : {
+          "apiKey": "AIzaSyBuI3nD9ryGW2mSjvZ9j0oRT9mS_m1d_fw"
+        }
+      }
+    }
+  }
+}
