@@ -1,6 +1,9 @@
 import React from 'react'
-import {Button, StyleSheet, ScrollView, Image} from 'react-native'
+import {Button, StyleSheet, ScrollView, Image, Alert} from 'react-native'
 import t from 'tcomb-form-native'
+import {connect} from 'react-redux';
+import { actions as auth } from "../modules/auth/index"
+const {login} = auth;
 
 const Form = t.form.Form
 
@@ -22,15 +25,25 @@ const options = {
   }
 }
 
-export default class LoginScreen extends React.Component {
+class LoginScreen extends React.Component {
 
   static navigationOptions = {
     title: 'Ingresar'
-  };
+  }
 
-  handleSubmit = () => {
-    const value = this.refs.form.getValue();
-    console.log(value);
+  handleSubmit = (data) => {
+    this.props.login(data, this.onSuccess, this.onError)
+  }
+
+  onSuccess = ({exists, user}) => {
+    console.log(exists)
+    console.log(user)
+    this.props.navigation.navigate('Map')
+  }
+
+  onError(error) {
+    console.log(error)
+    Alert.alert('Error: ', error.message)
   }
 
   render() {
@@ -43,17 +56,16 @@ export default class LoginScreen extends React.Component {
         <Form ref="form" type={Credentials} options={options}/>
         <Button
           title="Ingresar"
-          onPress={this.handleSubmit} />
+          onPress={() => this.handleSubmit(this.refs.form.getValue())} />
         <Button
           title="No tengo cuenta"
           onPress={() => {this.props.navigation.navigate('Register')}}/>
-        <Button
-          title="Ver Mapa"
-          onPress={() => {this.props.navigation.navigate('Map')}} />
       </ScrollView>
     )
   }
 }
+
+export default connect(null, {login})(LoginScreen);
 
 const styles = StyleSheet.create({
   container: {

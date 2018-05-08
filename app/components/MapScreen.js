@@ -1,9 +1,12 @@
 import React from 'react';
-import {StyleSheet, Text, View, Dimensions} from 'react-native';
+import {StyleSheet, Text, View, Dimensions, TouchableOpacity, Image, Alert} from 'react-native';
 import {Constants, Location, MapView, Permissions} from 'expo';
 import { Ionicons } from '@expo/vector-icons';
 const { width, height } = Dimensions.get('window');
 import MapViewDirections from 'react-native-maps-directions';
+import {connect} from 'react-redux';
+import { actions as auth } from "../modules/auth/index"
+const { signOut } = auth;
 
 const ASPECT_RATIO = width / height;
 const LATITUDE = -34.594364
@@ -11,14 +14,14 @@ const LONGITUDE = -58.430461
 const LATITUDE_DELTA = 0.0922
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
-export default class MapScreen extends React.Component {
+class MapScreen extends React.Component {
 
   static navigationOptions = {
-    title: 'Mapa'
+    title: 'Map'
   };
 
-  constructor(props){
-    super(props)
+  constructor(){
+    super()
     this.state = {
       region: {
         latitude: LATITUDE,
@@ -32,6 +35,18 @@ export default class MapScreen extends React.Component {
 
   componentDidMount() {
     this._getLocationAsync();
+  }
+
+  _onSingOut = () => {
+    this.props.signOut(this._onLogoutSuccess, this._onLogoutError)
+  }
+
+  _onLogoutSuccess = () => {
+    this.props.navigation.navigate('Login')
+  }
+
+  _onLogoutError = (error) => {
+    Alert.alert('Oops!', error.message)
   }
 
   _getLocationAsync = async () => {
@@ -84,11 +99,20 @@ export default class MapScreen extends React.Component {
               <Ionicons name="md-search" size={26} color="black"/> Destino: {destinationName}
             </Text>
           </View>
+          <View style={styles.inputWrapper}>
+            <TouchableOpacity onPress={this._onSingOut}>
+              <Image style={{width: 20, height: 20}}
+                     source={require('../assets/myaccount.png')}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     );
   }
 }
+
+export default connect(null, {signOut})(MapScreen);
 
 const styles = StyleSheet.create({
   container: {

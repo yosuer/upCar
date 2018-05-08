@@ -1,27 +1,20 @@
 import React from 'react'
-import {Button, StyleSheet, ScrollView, Text, TouchableOpacity, Image} from 'react-native'
+import {Button, StyleSheet, ScrollView, Text, TouchableOpacity, Image, Alert} from 'react-native'
 import t from 'tcomb-form-native'
+import { connect } from 'react-redux';
+import { actions as auth } from "../modules/auth/index"
+const { register } = auth;
 
 const Form = t.form.Form
 
 const User = t.struct({
-  name: t.String,
-  lastName: t.String,
   email: t.String,
   password: t.String,
-  terms: t.Boolean
+  confirmPassword: t.String
 })
 
 const options = {
   fields: {
-    name: {
-      label: 'Nombre(s)',
-      error: 'Este campo es obligatorio'
-    },
-    lastName: {
-      label: 'Apellido(s)',
-      error: 'Este campo es obligatorio'
-    },
     email: {
       label: 'Correo Electronico',
       error: 'Este campo es obligatorio'
@@ -30,13 +23,14 @@ const options = {
       label: 'Contraseña',
       error: 'Este campo es obligatorio'
     },
-    terms: {
-      label: 'Acepto los terminos'
+    confirmPassword: {
+      label: 'Confirme su contraseña',
+      error: 'Este campo es obligatorio'
     }
   }
 }
 
-export default class RegisterScreen extends React.Component {
+class RegisterScreen extends React.Component {
 
   static navigationOptions = ({ navigation }) => {
     return {
@@ -44,16 +38,27 @@ export default class RegisterScreen extends React.Component {
       headerRight: (
         <TouchableOpacity onPress={() => {navigation.navigate('MyAccount')}}>
           <Image style={{width: 20, height: 20}}
-                 source={require('../../assets/myaccount.png')}
+                 source={require('../assets/myaccount.png')}
           />
         </TouchableOpacity>
-      ),
+      )
     };
   };
 
-  handleSubmit = () => {
-    const value = this.refs.form.getValue();
-    console.log('value: ', value);
+  handleSubmit = (data) => {
+    console.log('value: ', data);
+    this.props.register(data, this.onSuccess, this.onError)
+  }
+
+  onSuccess(user) {
+    console.log(this.props)
+    console.log(user)
+    this.props.navigation.navigate('Map')
+  }
+
+  onError(error) {
+    console.log(error)
+    Alert.alert('Error al registrar', error.message)
   }
 
   render() {
@@ -66,11 +71,13 @@ export default class RegisterScreen extends React.Component {
         <Form ref="form" type={User} options={options}/>
         <Button
           title="Registrar"
-          onPress={this.handleSubmit} />
+          onPress={() => this.handleSubmit(this.refs.form.getValue())} />
       </ScrollView>
     )
   }
 }
+
+export default connect(null, { register })(RegisterScreen);
 
 const styles = StyleSheet.create({
   container: {

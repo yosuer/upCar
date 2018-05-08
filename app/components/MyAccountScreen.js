@@ -1,7 +1,16 @@
 import React from 'react'
 import {Text, View} from 'react-native';
+import { connect } from 'react-redux';
 
-export default class MyAccountScreen extends React.Component {
+const mapStateToProps = (state) => {
+  return { };
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return { };
+}
+
+class MyAccountScreen extends React.Component {
 
   static navigationOptions = {
     title: 'Mi perfil'
@@ -15,3 +24,5 @@ export default class MyAccountScreen extends React.Component {
     )
   }
 }
+
+export default connect(mapStateToProps, mapDispatchToProps)(MyAccountScreen);
