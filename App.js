@@ -1,50 +1,67 @@
-import React from 'react'
-import { Font, AppLoading } from 'expo';
-
+import React from "react";
+import {AppLoading, Font} from 'expo'
 import {Provider} from 'react-redux';
 import store from './app/redux/store';
-import Router from './app/config/routes'
+import {createDrawerNavigator} from 'react-navigation'
+import AppRouterConfigs from './app/config/AppRouterConfigs';
+import {checkLoginStatus} from './app/modules/auth/actions';
+import {Root} from 'native-base';
+import SideBar from './app/components/SideBar/SideBar';
 
-function cacheFonts(fonts) {
-  return fonts.map(font => Font.loadAsync(font));
+const createAppNavigator = (loggedIn = false) => {
+  return createDrawerNavigator(AppRouterConfigs.screens, {
+    initialRouteName: loggedIn ? 'Map' : 'Login',
+    contentComponent: props => <SideBar {...props}/>
+  })
 }
 
 export default class App extends React.Component {
 
   constructor() {
-    super();
+    super()
     this.state = {
       isReady: false,
+      isLoggedIn: false
     }
   }
 
-  _loadAssetsAsync = async () => {
-    const fontAssets = cacheFonts([
-      {RobotoExtraBold: require('./app/assets/fonts/Roboto-Black.ttf')},
-      {RobotoBold: require('./app/assets/fonts/Roboto-Bold.ttf')},
-      {RobotoMedium: require('./app/assets/fonts/Roboto-Medium.ttf')},
-      {RobotoRegular: require('./app/assets/fonts/Roboto-Regular.ttf')},
-      {RobotoLight: require('./app/assets/fonts/Roboto-Light.ttf')}
-    ]);
-
-    await Promise.all([...fontAssets]);
+  loadFonts = async () => {
+    await Font.loadAsync({
+      Roboto: require('native-base/Fonts/Roboto.ttf'),
+      Roboto_medium: require('native-base/Fonts/Roboto_medium.ttf')
+    })
   }
 
-  render () {
-    if(!this.state.isReady) {
+  componentWillMount = async () => {
+    console.ignoredYellowBox = [
+      'Setting a timer', 'Remote debugger'
+    ]
+    await this.loadFonts()
+    /*let _this = this
+      store.dispatch(checkLoginStatus((isLoggedIn) => {
+      console.log(isLoggedIn)
+      _this.setState({isReady: true, isLoggedIn});
+    }));*/
+    this.setState({isReady: true, isLoggedIn: false})
+  }
+
+  render() {
+    if (!this.state.isReady) {
+      console.log(this.state)
       return (
-        <AppLoading
-          startAsync={this._loadAssetsAsync}
-          onFinish={() => this.setState({isReady: true})}
-          onError={console.warn}
-        />
+        <AppLoading/>
+      )
+    } else {
+      console.log('isReady')
+      const AppNavigator = createAppNavigator(this.state.isLoggedIn)
+      return (
+        <Provider store={store}>
+          <Root>
+            <AppNavigator />
+          </Root>
+        </Provider>
       )
     }
-
-    return (
-      <Provider store={store}>
-        <Router />
-      </Provider>
-    )
   }
+
 }

@@ -1,77 +1,92 @@
 import React from 'react'
-import {Button, StyleSheet, ScrollView, Image, Alert} from 'react-native'
-import t from 'tcomb-form-native'
+import {StyleSheet, Keyboard} from 'react-native'
 import {connect} from 'react-redux';
 import { actions as auth } from "../modules/auth/index"
+import {Button, Col, Container, Content, Form, Toast, Header, Input, Item, Label, Spinner, Text} from 'native-base';
 const {login} = auth;
-
-const Form = t.form.Form
-
-const Credentials = t.struct({
-  email: t.String,
-  password: t.String
-})
-
-const options = {
-  fields: {
-    email: {
-      label: 'Email',
-      error: 'Ingrese un email válido'
-    },
-    password: {
-      label: 'Contraseña',
-      error: 'Ingrese su contraseña'
-    }
-  }
-}
 
 class LoginScreen extends React.Component {
 
   static navigationOptions = {
-    title: 'Ingresar'
+    header: () => null
   }
 
-  handleSubmit = (data) => {
-    this.props.login(data, this.onSuccess, this.onError)
+  constructor(props) {
+    super(props)
+    this.state = {
+      email: 'yosuer@gmail.com',
+      password: '123456',
+      isLoading: false
+    }
+  }
+
+  handleSubmit = () => {
+    this.setState({isLoading: true})
+    Keyboard.dismiss()
+    const {email, password} = this.state
+    if (!email || !password) {
+      this.onError('Ingrese su correo y contraseña')
+    } else{
+      this.props.login({email, password}, this.onSuccess, this.onError)
+    }
   }
 
   onSuccess = ({exists, user}) => {
-    console.log(exists)
-    console.log(user)
-    this.props.navigation.navigate('Map')
+    if (exists) {
+      this.props.navigation.navigate('Map')
+    } else {
+      this.props.navigation.navigate('CompleteProfile', {user})
+    }
+    this.setState({isLoading: false})
   }
 
-  onError(error) {
+  onError = (error) => {
     console.log(error)
-    Alert.alert('Error: ', error.message)
+    this.setState({isLoading: false})
+    Toast.show({
+      text: error.message || error,
+      buttonText: "cerrar",
+      position: "bottom",
+      type: "danger"
+    })
   }
 
   render() {
     return (
-      <ScrollView style={styles.container}>
-        <Image
-          style={{width: 50, height: 50}}
-          source={{uri: 'https://facebook.github.io/react-native/docs/assets/favicon.png'}}
-        />
-        <Form ref="form" type={Credentials} options={options}/>
-        <Button
-          title="Ingresar"
-          onPress={() => this.handleSubmit(this.refs.form.getValue())} />
-        <Button
-          title="No tengo cuenta"
-          onPress={() => {this.props.navigation.navigate('Register')}}/>
-      </ScrollView>
+      <Container>
+        <Header />
+        <Content>
+          <Form>
+            <Item stackedLabel>
+              <Label>Username</Label>
+              <Input placeholder="user@email.com"
+                     keyboardType={'email-address'}
+                     defaultValue={this.state.email}
+                     onSubmitEditing={Keyboard.dismiss}
+                     onChangeText={(email) => this.setState({email})}/>
+            </Item>
+            <Item stackedLabel last>
+              <Label>Password</Label>
+              <Input placeholder="*********"
+                     defaultValue={this.state.password}
+                     onSubmitEditing={Keyboard.dismiss}
+                     onChangeText={(password) => this.setState({password})}
+                     secureTextEntry={true}/>
+            </Item>
+          </Form>
+          <Button rounded success disabled={this.state.isLoading}
+                  onPress={this.handleSubmit}>
+            <Text>Ingresar</Text>
+          </Button>
+          <Button rounded disabled={this.state.isLoading}
+                  onPress={() => {this.props.navigation.navigate('Register')}}>
+            <Text>No tengo cuenta</Text>
+          </Button>
+          {this.state.isLoading ? <Spinner color='green' /> : null}
+        </Content>
+      </Container>
     )
   }
 }
 
 export default connect(null, {login})(LoginScreen);
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#ffffff',
-    marginTop: 50,
-    padding: 20,
-  }
-})

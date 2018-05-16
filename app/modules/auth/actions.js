@@ -30,7 +30,7 @@ export function login(data, successCB, errorCB) {
       if (success) {
         if (data.exists) dispatch({type: t.LOGGED_IN, data: data.user});
         successCB(data);
-      }else if (error) errorCB(error)
+      } else if (error) errorCB(error)
     });
   };
 }
@@ -56,16 +56,24 @@ export function signOut(successCB, errorCB) {
 }
 
 export function checkLoginStatus(callback) {
+  console.log('checkLoginStatus')
   return (dispatch) => {
-    auth.onAuthStateChanged((user) => {
+    console.log('dispatch')
+    auth.onAuthStateChanged(async (user) => {
+      console.log('onAuthStateChanged')
       let isLoggedIn = (user !== null);
       if (isLoggedIn) {
-        AsyncStorage.getItem('user', (err, user) => {
+        console.log('isLoggedIn')
+        console.log(user)
+        try {
+          const user = await AsyncStorage.getItem('user');
           if (user === null) isLoggedIn = false
           else dispatch({type: t.LOGGED_IN, data: JSON.parse(user)})
+        } catch (error) {
           callback(isLoggedIn);
-        });
+        }
       } else {
+        console.log('isLoggedIn : false')
         dispatch({type: t.LOGGED_OUT});
         callback(isLoggedIn);
       }

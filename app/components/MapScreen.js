@@ -16,8 +16,17 @@ const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 class MapScreen extends React.Component {
 
-  static navigationOptions = {
-    title: 'Map'
+  static navigationOptions = ({ navigation }) => {
+    return {
+      title: 'Map',
+      headerRight: (
+        <TouchableOpacity onPress={() => {navigation.navigate('MyAccount')}}>
+          <Image style={{width: 20, height: 20}}
+                 source={require('../assets/myaccount.png')}
+          />
+        </TouchableOpacity>
+      )
+    };
   };
 
   constructor(){
@@ -58,7 +67,7 @@ class MapScreen extends React.Component {
     this.setState({ location,
       region: {latitude: location.coords.latitude, longitude: location.coords.longitude,
         latitudeDelta: LATITUDE_DELTA, longitudeDelta: LONGITUDE_DELTA}});
-  };
+  }
 
   render() {
     const {location} = this.state

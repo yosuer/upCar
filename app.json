@@ -13,6 +13,10 @@
           "apiKey": "AIzaSyBuI3nD9ryGW2mSjvZ9j0oRT9mS_m1d_fw"
         }
       }
+    },
+    "splash": {
+      "image": "./app/assets/splash.png",
+      "backgroundColor": "#000"
     }
   }
 }
