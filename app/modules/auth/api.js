@@ -1,3 +1,4 @@
+import to from 'await-to-js';
 import { auth, database, provider } from "../../config/firebase";
 
 //Register the user using email and password
@@ -16,11 +17,11 @@ export function createUser(user, callback) {
 }
 
 //Sign the user in with their email and password
-export function login(data, callback) {
+export const login = async (data, callback) => {
   const { email, password } = data;
-  auth.signInWithEmailAndPassword(email, password)
-    .then((user) => getUser(user, callback))
-    .catch((error) => callback(false, null, error));
+  const [err, user] = await to(auth.signInWithEmailAndPassword(email, password))
+  if (err) return callback(false, null, err)
+  else getUser(user, callback)
 }
 
 //Get the user object from the realtime database

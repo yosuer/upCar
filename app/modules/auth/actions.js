@@ -1,6 +1,7 @@
 import * as t from './actionTypes';
 import * as api from './api';
 import { auth } from "../../config/firebase";
+import to from 'await-to-js';
 
 import { AsyncStorage } from 'react-native';
 
@@ -55,25 +56,38 @@ export function signOut(successCB, errorCB) {
   };
 }
 
+export const checkLogin =  async () => {
+  console.log('checkLogin')
+  const [err, user] = await to(auth.onAuthStateChanged())
+  let isLoggedIn = (user !== null);
+  console.log('err', err)
+  console.log('isLogg', isLoggedIn)
+  if (isLoggedIn) {
+    const user = await AsyncStorage.getItem('user');
+    console.log('user', user)
+    if (user === null) {
+      return false
+    } else {
+      return true
+    }
+  } else {
+    return false
+  }
+}
+
 export function checkLoginStatus(callback) {
-  console.log('checkLoginStatus')
   return (dispatch) => {
-    console.log('dispatch')
     auth.onAuthStateChanged(async (user) => {
-      console.log('onAuthStateChanged')
       let isLoggedIn = (user !== null);
       if (isLoggedIn) {
-        console.log('isLoggedIn')
-        console.log(user)
         try {
           const user = await AsyncStorage.getItem('user');
           if (user === null) isLoggedIn = false
           else dispatch({type: t.LOGGED_IN, data: JSON.parse(user)})
-        } catch (error) {
+        } finally {
           callback(isLoggedIn);
         }
       } else {
-        console.log('isLoggedIn : false')
         dispatch({type: t.LOGGED_OUT});
         callback(isLoggedIn);
       }

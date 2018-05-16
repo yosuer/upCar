@@ -4,7 +4,7 @@ import {Provider} from 'react-redux';
 import store from './app/redux/store';
 import {createDrawerNavigator} from 'react-navigation'
 import AppRouterConfigs from './app/config/AppRouterConfigs';
-import {checkLoginStatus} from './app/modules/auth/actions';
+import {checkLogin, checkLoginStatus} from './app/modules/auth/actions';
 import {Root} from 'native-base';
 import SideBar from './app/components/SideBar/SideBar';
 
@@ -37,12 +37,11 @@ export default class App extends React.Component {
       'Setting a timer', 'Remote debugger'
     ]
     await this.loadFonts()
-    /*let _this = this
+    let _this = this
       store.dispatch(checkLoginStatus((isLoggedIn) => {
       console.log(isLoggedIn)
       _this.setState({isReady: true, isLoggedIn});
-    }));*/
-    this.setState({isReady: true, isLoggedIn: false})
+    }));
   }
 
   render() {
